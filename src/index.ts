@@ -1,9 +1,9 @@
-import * as assert from 'assert';
-import * as pm2 from 'pm2';
+import * as assert from "assert";
+import * as pm2 from "pm2";
 
-import { Handler, Options, RequestPacket, ResponsePacket } from './types';
+import { Handler, Options, RequestPacket, ResponsePacket } from "./types";
 
-export { Handler, Options } from './types';
+export { Handler, Options } from "./types";
 
 const handlers: { [key: string]: Handler } = {};
 const myName = process.env.name;
@@ -11,11 +11,20 @@ const myPmId = Number(process.env.pm_id);
 let myBus: any;
 const globalResponseListeners: Record<string, any> = {};
 
-process.on('message', async ({ topic, data: { targetInstanceId, data, requestId } }: RequestPacket): Promise<void> => {
-    if (typeof handlers[topic] === 'function' && process.send) {
+process.on(
+  "message",
+  async ({
+    topic,
+    data: { targetInstanceId, data, requestId },
+  }: RequestPacket): Promise<void> => {
+    if (typeof handlers[topic] === "function" && process.send) {
       const response: ResponsePacket<any> = {
         type: `process:${targetInstanceId}`,
-        data: { instanceId: myPmId, message: await handlers[topic](data), requestId },
+        data: {
+          instanceId: myPmId,
+          message: await handlers[topic](data),
+          requestId,
+        },
       };
 
       process.send(response);
@@ -79,9 +88,9 @@ export const disconnect = function disconnect(): Promise<void> {
  * Random guid.
  */
 const uuidv4 = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
@@ -99,10 +108,12 @@ export const getMessages = function getMessages<T = any>(
   }: Options = {}
 ): Promise<T[]> {
   return new Promise<T[]>((resolve, reject): void => {
-    assert.ok(isConnected(), 'not connected');
+    assert.ok(isConnected(), "not connected");
 
-    const timer = setTimeout((): void => reject(new Error(`${topic} timed out`)), timeout);
-
+    const timer = setTimeout(
+      (): void => reject(new Error(`${topic} timed out`)),
+      timeout
+    );
     const done = function done(err: Error | null, messages: T[]): void {
       clearTimeout(timer);
 
@@ -118,22 +129,26 @@ export const getMessages = function getMessages<T = any>(
         const resolvers: Promise<void>[] = [];
 
         const resolverBusTargets: number[] = [];
-        const resolverSelf = async (): Promise<void> => {messages.push(await handlers[topic](data))};
+        const resolverSelf = async (): Promise<void> => {
+          messages.push(await handlers[topic](data));
+        };
 
-        if (includeSelfIfUnmanaged && Number.isNaN(myPmId)) resolvers.push(resolverSelf());
+        if (includeSelfIfUnmanaged && Number.isNaN(myPmId))
+          resolvers.push(resolverSelf());
 
         for (const process of processes) {
           if (filter(process)) {
             if (process.pm_id === myPmId) {
               resolvers.push(resolverSelf());
-            } else if (typeof process.pm_id === 'number') {
+            } else if (typeof process.pm_id === "number") {
               resolverBusTargets.push(process.pm_id);
             }
           }
         }
 
         if (resolverBusTargets.length) {
-          resolvers.push(new Promise((resolve, reject): void => {
+          resolvers.push(
+            new Promise((resolve, reject): void => {
               const pendingBusTargets = new Set(resolverBusTargets);
               const requestId = uuidv4();
 
@@ -157,7 +172,11 @@ export const getMessages = function getMessages<T = any>(
               };
 
               resolverBusTargets.forEach((pmId): void => {
-                pm2.sendDataToProcessId(pmId, request, (err: Error): void => err && reject(err));
+                pm2.sendDataToProcessId(
+                  pmId,
+                  request,
+                  (err: Error): void => err && reject(err)
+                );
               });
             })
           );
@@ -176,7 +195,10 @@ export const getMessages = function getMessages<T = any>(
 /**
  * Attaches a handler for the given topic.
  */
-export const onMessage = function onMessage(topic: string, handler: Handler): void {
+export const onMessage = function onMessage(
+  topic: string,
+  handler: Handler
+): void {
   handlers[topic] = handler;
 };
 

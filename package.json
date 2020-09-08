@@ -1,10 +1,10 @@
 {
-  "name": "pm2-messages",
-  "version": "4.0.1",
+  "name": "pm2-msg",
+  "version": "4.1.0",
   "description": "Package to request messages from processes managed by pm2.",
   "repository": {
     "type": "git",
-    "url": "github:ChrisLahaye/pm2-messages"
+    "url": "github:nbdelorme/pm2msg"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
