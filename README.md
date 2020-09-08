@@ -4,21 +4,20 @@ This package provides a communication interface to retrieve messages of processe
 
 ## Credit
 
-All credit for this wonderful code goes to Chris Lahaye
-https://github.com/ChrisLahaye/pm2-messages
+All credit for this wonderful code goes to Chris Lahaye (https://github.com/ChrisLahaye/pm2-messages). This version of the code includes a memory leak fix. See https://github.com/ChrisLahaye/pm2-messages/issues/7 for details.
 
 ## Installation
 
 Install the package with:
 
 ```sh
-npm install pm2-messages --save
+npm install pm2msg --save
 ```
 
 or
 
 ```sh
-yarn add pm2-messages
+yarn add pm2msg
 ```
 
 ## Quick start
@@ -26,7 +25,7 @@ yarn add pm2-messages
 1. Attach a message handler
 
 ```js
-const pm2mes = require("pm2-messages");
+const pm2mes = require("pm2msg");
 const prom = require("prom-client");
 
 pm2mes.onMessage("get_prom_register", () => prom.register.getMetricsAsJSON());
@@ -62,7 +61,7 @@ The following example demonstrates how to properly use `connect` and `disconnect
 Note that the latter will cause issues when concurrent requests are happening, i.e. when two processes in a cluster are using `getMessages` at the same time. Calling `disconnect()` in one process will wrongly affect the connections by other processes, resulting in an error when trying to use the connection (see issue [#5](https://github.com/ChrisLahaye/pm2-messages/issues/5)).
 
 ```js
-const pm2mes = require("pm2-messages");
+const pm2mes = require("pm2msg");
 
 const gracefulShutdown = async function gracefulShutdown() {
   try {
