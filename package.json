@@ -1,5 +1,5 @@
 {
-  "name": "pm2-msg",
+  "name": "pm2msg",
   "version": "4.1.0",
   "description": "Package to request messages from processes managed by pm2.",
   "repository": {
